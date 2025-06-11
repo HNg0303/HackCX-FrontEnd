@@ -1,16 +1,18 @@
+import { apiService } from '@/api/api';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ChatWidget } from '../../chat/components/ChatWidget';
 
 // TODO: Replace with actual user data from authentication
 const mockUser = {
-  name: 'John Doe',
-  totalBalance: 25000.00,
-  savingsBalance: 15000.00,
-  investmentBalance: 8000.00,
-  depositBalance: 2000.00,
+  name: 'Huyen Trang',
+  totalBalance: 2500000.00,
+  savingsBalance: 1500000.00,
+  investmentBalance: 800000.00,
+  depositBalance: 200000.00,
 };
 
 export const DashboardScreen: React.FC = () => {
@@ -19,8 +21,33 @@ export const DashboardScreen: React.FC = () => {
     router.replace('/login');
   };
 
-  const navigateToProduct = (product: string) => {
+  const navigateToProduct = (product: 'savings' | 'investments' | 'deposits') => {
     router.push(`/${product}`);
+  };
+
+  const handleNavigateToChat = async () => {
+    try {
+      // TODO: Replace with actual user ID from authentication
+      const MOCK_USER_ID = 'user123';
+      
+      // Fetch recommendations before navigating
+      const response = await apiService.getRecommendation(MOCK_USER_ID);
+      
+      if (response.success) {
+        // Pass recommendations to chat screen through router params
+        router.push({
+          pathname: '/chat',
+          params: { recommendations: JSON.stringify(response.recommendations) }
+        });
+      } else {
+        // If recommendations fetch fails, still navigate but without recommendations
+        router.push('/chat');
+      }
+    } catch (error) {
+      console.error('Error fetching recommendations:', error);
+      // Navigate to chat even if recommendations fail
+      router.push('/chat');
+    }
   };
 
   return (
@@ -31,9 +58,17 @@ export const DashboardScreen: React.FC = () => {
             <Text style={styles.welcomeText}>Welcome back,</Text>
             <Text style={styles.userName}>{mockUser.name}</Text>
           </View>
-          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-            <Ionicons name="log-out-outline" size={24} color="#666" />
-          </TouchableOpacity>
+          <View style={styles.headerButtons}>
+            <TouchableOpacity 
+              onPress={handleNavigateToChat} 
+              style={styles.headerButton}
+            >
+              <Ionicons name="chatbubble-ellipses-outline" size={24} color="#666" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleLogout} style={styles.headerButton}>
+              <Ionicons name="log-out-outline" size={24} color="#666" />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.balanceCard}>
@@ -93,6 +128,7 @@ export const DashboardScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <ChatWidget />
     </SafeAreaView>
   );
 };
@@ -118,8 +154,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  logoutButton: {
+  headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerButton: {
     padding: 8,
+    marginLeft: 8,
   },
   balanceCard: {
     margin: 20,
