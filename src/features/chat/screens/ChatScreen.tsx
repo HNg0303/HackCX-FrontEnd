@@ -32,6 +32,7 @@ export const ChatScreen: React.FC = () => {
   const params = useLocalSearchParams();
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES); // Initialize messages with initial messages
   const [inputText, setInputText] = useState(''); // Initialize inputText with an empty string
+  const [inputPlaceholder, setInputPlaceholder] = useState('Nhập câu hỏi tại đây');
   const [isTyping, setIsTyping] = useState(false); // Initialize isTyping with false
   const [showRecommendations, setShowRecommendations] = useState(true); // Initialize showRecommendations with true
   const [recommendations, setRecommendations] = useState<string[]>([]); // Initialize recommendations with an empty array
@@ -39,7 +40,7 @@ export const ChatScreen: React.FC = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
   const [showTransactionModal, setShowTransactionModal] = useState(false);
-  const [pendingTransaction, setPendingTransaction] = useState<{amount?: number; description?: string} | null>(null);
+  const [pendingTransaction, setPendingTransaction] = useState<{ amount?: number; description?: string } | null>(null);
 
   // TODO: Replace with actual user ID from authentication
   const MOCK_USER_ID = 'user_001';
@@ -109,18 +110,19 @@ export const ChatScreen: React.FC = () => {
 
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
+    setInputPlaceholder('Nhập câu hỏi tại đây');
     setIsTyping(true);
 
     try {
 
-        
+
       // Test response template
       const response: RagResponse = {
-        jump: true,
+        jump: false,
         success: true,
         response: 'I can help you with that payment. Would you like to proceed with the transaction?',
       };
-      
+
       // Add bot response to messages
       const botResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
@@ -167,7 +169,7 @@ export const ChatScreen: React.FC = () => {
     ]).start(() => {
       setShowRecommendations(false);
       //setInputText(question);
-      
+
       const userMessage: ChatMessage = {
         id: Date.now().toString(),
         text: question,
@@ -227,7 +229,7 @@ export const ChatScreen: React.FC = () => {
         <View style={styles.placeholder} />
       </View>
 
-    
+
       <ScrollView
         ref={scrollViewRef}
         style={styles.messagesContainer}
@@ -242,7 +244,7 @@ export const ChatScreen: React.FC = () => {
               message.sender === 'user' ? styles.userWrapper : styles.botWrapper,
             ]}
           >
-            <View style={styles.avatar}>
+            <View style={message.sender === 'user' ? [styles.avatar, styles.avatarRight] : [styles.avatar, styles.avatarLeft]}>
               {message.sender === 'bot' ? (
                 <Ionicons name="chatbubble-ellipses" size={24} color="#007AFF" />
               ) : (
@@ -281,7 +283,7 @@ export const ChatScreen: React.FC = () => {
       </ScrollView>
 
       {showRecommendations && recommendations.length > 0 && (
-        <Animated.View 
+        <Animated.View
           style={[
             styles.recommendationsOverlay,
             {
@@ -293,7 +295,7 @@ export const ChatScreen: React.FC = () => {
           <View style={styles.recommendationsContainer}>
             <View style={styles.recommendationsHeader}>
               <Text style={styles.recommendationsTitle}>Recommended Actions</Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => setShowRecommendations(false)}
                 style={styles.closeButton}
               >
@@ -310,10 +312,10 @@ export const ChatScreen: React.FC = () => {
                 onPress={() => handleRecommendationClick(question)}
               >
                 <View style={styles.recommendationContent}>
-                  <Ionicons 
-                    name={index === 0 ? "wallet-outline" : index === 1 ? "trending-up-outline" : "game-controller-outline"} 
-                    size={20} 
-                    color="#007AFF" 
+                  <Ionicons
+                    name={index === 0 ? "wallet-outline" : index === 1 ? "trending-up-outline" : "game-controller-outline"}
+                    size={20}
+                    color="#007AFF"
                     style={styles.recommendationIcon}
                   />
                   <Text style={styles.recommendationText}>{question}</Text>
@@ -325,7 +327,7 @@ export const ChatScreen: React.FC = () => {
         </Animated.View>
       )}
 
-    {/* The input container component */}
+      {/* The input container component */}
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.inputContainer}
@@ -334,10 +336,13 @@ export const ChatScreen: React.FC = () => {
           style={styles.input}
           value={inputText}
           onChangeText={setInputText}
-          placeholder="Type your message..."
-          multiline
+          placeholder={inputPlaceholder}
+          multiline={false}
           maxLength={1000}
           placeholderTextColor="#999"
+          returnKeyType="send"
+          blurOnSubmit={true}
+          onSubmitEditing={handleSend}
         />
         <TouchableOpacity
           style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
@@ -367,27 +372,27 @@ export const ChatScreen: React.FC = () => {
                 <Ionicons name="close" size={24} color="#666" />
               </TouchableOpacity>
             </View>
-            
+
             <View style={styles.transactionDetails}>
               <Text style={styles.transactionLabel}>Amount:</Text>
               <Text style={styles.transactionValue}>
                 {pendingTransaction?.amount?.toLocaleString('vi-VN')} VND
               </Text>
-              
+
               <Text style={styles.transactionLabel}>Description:</Text>
               <Text style={styles.transactionValue}>{pendingTransaction?.description}</Text>
             </View>
 
             <View style={styles.modalActions}>
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.cancelButton]} 
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
                 onPress={handleTransactionCancel}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.confirmButton]} 
+
+              <TouchableOpacity
+                style={[styles.modalButton, styles.confirmButton]}
                 onPress={handleTransactionConfirm}
               >
                 <Text style={styles.confirmButtonText}>Proceed to Payment</Text>
@@ -434,9 +439,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: 16,
     maxWidth: '85%',
+    alignItems: 'flex-end',
   },
   userWrapper: {
     alignSelf: 'flex-end',
+    flexDirection: 'row-reverse',
   },
   botWrapper: {
     alignSelf: 'flex-start',
@@ -446,9 +453,14 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 16,
     backgroundColor: '#F5F5F5',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     alignItems: 'center',
+  },
+  avatarLeft: {
     marginRight: 8,
+  },
+  avatarRight: {
+    marginLeft: 8,
   },
   messageBubble: {
     padding: 12,
@@ -505,8 +517,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
     borderRadius: 20,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    maxHeight: 120,
+    paddingVertical: 6,
+    height: 40,
+    maxHeight: 40,
     marginRight: 8,
     fontSize: 16,
   },
