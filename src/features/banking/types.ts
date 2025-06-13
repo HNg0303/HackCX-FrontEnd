@@ -1,7 +1,7 @@
 export interface Account {
   id: string;
   accountNumber: string;
-  type: 'SAVINGS' | 'INVESTMENT' | 'DEPOSIT';
+  type: 'CREDIT_LOAN' | 'STOCK_INVESTMENT' | 'DEPOSIT';
   balance: number;
   currency: string;
   createdAt: Date;

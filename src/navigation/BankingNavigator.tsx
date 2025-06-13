@@ -15,13 +15,13 @@ export const BankingNavigator: React.FC = () => {
           let iconName;
 
           switch (route.name) {
-            case 'Savings':
+            case 'credit_loan':
               iconName = focused ? 'wallet' : 'wallet-outline';
               break;
-            case 'Investments':
+            case 'stock_investment':
               iconName = focused ? 'trending-up' : 'trending-up-outline';
               break;
-            case 'Deposits':
+            case 'deposit':
               iconName = focused ? 'time' : 'time-outline';
               break;
             default:
@@ -35,9 +35,9 @@ export const BankingNavigator: React.FC = () => {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Savings" component={SavingsScreen} />
-      <Tab.Screen name="Investments" component={InvestmentScreen} />
-      <Tab.Screen name="Deposits" component={DepositScreen} />
+      <Tab.Screen name="credit_loan" component={SavingsScreen} />
+      <Tab.Screen name="stock_investment" component={InvestmentScreen} />
+      <Tab.Screen name="deposit" component={DepositScreen} />
     </Tab.Navigator>
   );
 }; 

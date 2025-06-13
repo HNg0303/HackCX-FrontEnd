@@ -14,6 +14,11 @@ const mockUser = {
   investmentBalance: 800000.00,
   depositBalance: 200000.00,
 };
+const MOCK_USER_ID = 'user_001';
+
+type ProductType = "deposit" | "credit_loan" | "stock_investment";
+
+const product_list: ProductType[] = ["deposit", "credit_loan", "stock_investment"];
 
 export const DashboardScreen: React.FC = () => {
   const handleLogout = () => {
@@ -21,15 +26,39 @@ export const DashboardScreen: React.FC = () => {
     router.replace('/login');
   };
 
-  const navigateToProduct = (product: 'savings' | 'investments' | 'deposits') => {
-    router.push(`/${product}`);
+  const navigateToProduct = async (product: ProductType) => {
+    try {
+      // Update frequency before navigation
+      await apiService.updateFrequency({
+        user_id: MOCK_USER_ID,
+        product: product
+      });
+      
+      // Navigate to the appropriate screen using href with type assertion
+      const routeMap = {
+        'deposit': '/deposit' as const,
+        'credit_loan': '/credit_loan' as const,
+        'stock_investment': '/stock_investment' as const
+      };
+      // Use type assertion to tell TypeScript these are valid routes
+      router.push(routeMap[product] as any);
+    } catch (error) {
+      console.error('Error updating frequency:', error);
+      // Still navigate even if frequency update fails
+      const routeMap = {
+        'deposit': '/deposit' as const,
+        'credit_loan': '/credit_loan' as const,
+        'stock_investment': '/stock_investment' as const
+      } as const;
+      
+      // Use type assertion to tell TypeScript these are valid routes
+      router.push(routeMap[product] as any);
+    }
   };
 
   const handleNavigateToChat = async () => {
     try {
       // TODO: Replace with actual user ID from authentication
-      const MOCK_USER_ID = 'user123';
-      
       // Fetch recommendations before navigating
       const response = await apiService.getRecommendation(MOCK_USER_ID);
       
@@ -81,39 +110,7 @@ export const DashboardScreen: React.FC = () => {
           
           <TouchableOpacity 
             style={styles.productCard}
-            onPress={() => navigateToProduct('savings')}
-          >
-            <View style={styles.productIcon}>
-              <Ionicons name="wallet-outline" size={24} color="#007AFF" />
-            </View>
-            <View style={styles.productInfo}>
-              <Text style={styles.productName}>Savings Account</Text>
-              <Text style={styles.productBalance}>
-                ${mockUser.savingsBalance.toFixed(2)}
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={24} color="#666" />
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.productCard}
-            onPress={() => navigateToProduct('investments')}
-          >
-            <View style={styles.productIcon}>
-              <Ionicons name="trending-up-outline" size={24} color="#007AFF" />
-            </View>
-            <View style={styles.productInfo}>
-              <Text style={styles.productName}>Investments</Text>
-              <Text style={styles.productBalance}>
-                ${mockUser.investmentBalance.toFixed(2)}
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={24} color="#666" />
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.productCard}
-            onPress={() => navigateToProduct('deposits')}
+            onPress={() => navigateToProduct('deposit')}
           >
             <View style={styles.productIcon}>
               <Ionicons name="time-outline" size={24} color="#007AFF" />
@@ -123,6 +120,34 @@ export const DashboardScreen: React.FC = () => {
               <Text style={styles.productBalance}>
                 ${mockUser.depositBalance.toFixed(2)}
               </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="#666" />
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.productCard}
+            onPress={() => navigateToProduct('credit_loan')}
+          >
+            <View style={styles.productIcon}>
+              <Ionicons name="card-outline" size={24} color="#007AFF" />
+            </View>
+            <View style={styles.productInfo}>
+              <Text style={styles.productName}>Credit & Loans</Text>
+              <Text style={styles.productBalance}>View Options</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="#666" />
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.productCard}
+            onPress={() => navigateToProduct('stock_investment')}
+          >
+            <View style={styles.productIcon}>
+              <Ionicons name="bar-chart-outline" size={24} color="#007AFF" />
+            </View>
+            <View style={styles.productInfo}>
+              <Text style={styles.productName}>Stock Investment</Text>
+              <Text style={styles.productBalance}>View Options</Text>
             </View>
             <Ionicons name="chevron-forward" size={24} color="#666" />
           </TouchableOpacity>

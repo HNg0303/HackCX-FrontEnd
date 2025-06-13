@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URL for the API
-const API_BASE_URL = 'http://localhost:8053'; // Change this to your actual backend URL
+const API_BASE_URL = 'https://aa1a-171-239-203-50.ngrok-free.app'; // Change this to your actual backend URL
 
 // Types
 export interface UserSchema {
@@ -28,6 +28,12 @@ export interface InputPromptRequest {
 
 export interface UserIDRequest {
    user_id: string;
+}
+
+export interface RagResponse {
+   success: boolean;
+   response: string;
+   jump: boolean;
 }
 
 // API Service class
@@ -104,9 +110,9 @@ class ApiService {
       }
    }
 
-   async getRagResponse(input: InputPromptRequest) {
+   async getRagResponse(input: InputPromptRequest): Promise<RagResponse> {
       try {
-         const response = await this.axiosInstance.post('/api/agent/rag_response', input);
+         const response = await this.axiosInstance.post('/api/agent/agent_response', input);
          return response.data;
       } catch (error) {
          console.error('Error getting RAG response:', error);

@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Animated,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -13,15 +14,15 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChatMessage } from '../types';
+import { ChatMessage, RagResponse } from '../types';
 
 const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: '1',
-    text: 'Hello! I am your banking assistant. How can I help you today?',
+    text: 'Xin chào ! Tôi là Trợ lý ảo của ngân hàng, tôi có thể giúp gì cho bạn hôm nay?',
     sender: 'bot',
     timestamp: new Date(),
   },
@@ -29,17 +30,19 @@ const INITIAL_MESSAGES: ChatMessage[] = [
 
 export const ChatScreen: React.FC = () => {
   const params = useLocalSearchParams();
-  const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
-  const [inputText, setInputText] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const [showRecommendations, setShowRecommendations] = useState(true);
-  const [recommendations, setRecommendations] = useState<string[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES); // Initialize messages with initial messages
+  const [inputText, setInputText] = useState(''); // Initialize inputText with an empty string
+  const [isTyping, setIsTyping] = useState(false); // Initialize isTyping with false
+  const [showRecommendations, setShowRecommendations] = useState(true); // Initialize showRecommendations with true
+  const [recommendations, setRecommendations] = useState<string[]>([]); // Initialize recommendations with an empty array
   const scrollViewRef = useRef<ScrollView>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const [pendingTransaction, setPendingTransaction] = useState<{amount?: number; description?: string} | null>(null);
 
   // TODO: Replace with actual user ID from authentication
-  const MOCK_USER_ID = 'user123';
+  const MOCK_USER_ID = 'user_001';
 
   useEffect(() => {
     // Parse recommendations from router params
@@ -75,6 +78,25 @@ export const ChatScreen: React.FC = () => {
     }
   }, [showRecommendations]);
 
+  const handleTransactionConfirm = () => {
+    setShowTransactionModal(false);
+    if (pendingTransaction) {
+      router.push({
+        pathname: '/verification',
+        params: {
+          amount: pendingTransaction.amount?.toString(),
+          description: pendingTransaction.description
+        }
+      });
+    }
+  };
+
+  const handleTransactionCancel = () => {
+    setShowTransactionModal(false);
+    setPendingTransaction(null);
+    router.replace('/chat');
+  };
+
   const handleSend = async () => {
     if (!inputText.trim()) return;
 
@@ -90,32 +112,40 @@ export const ChatScreen: React.FC = () => {
     setIsTyping(true);
 
     try {
-      const response = await apiService.getRagResponse({
-        user_input: userMessage.text,
-        user_id: MOCK_USER_ID,
-      });
 
-      if (response.success) {
-        const botResponse: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          text: response.response,
-          sender: 'bot',
-          timestamp: new Date(),
-        };
-        setMessages(prev => [...prev, botResponse]);
-      } else {
-        throw new Error('Failed to get response from server');
+        
+      // Test response template
+      const response: RagResponse = {
+        jump: true,
+        success: true,
+        response: 'I can help you with that payment. Would you like to proceed with the transaction?',
+      };
+      
+      // Add bot response to messages
+      const botResponse: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        text: response.response,
+        sender: 'bot',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, botResponse]);
+
+      // Show transaction modal if jump is true
+      if (response.jump) {
+        setPendingTransaction({
+          amount: 1000000,
+          description: 'Payment for banking service'
+        });
+        setShowTransactionModal(true);
       }
     } catch (error) {
       console.error('Error getting bot response:', error);
-      
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         text: 'I apologize, but I encountered an error while processing your request. Please try again later.',
         sender: 'bot',
         timestamp: new Date(),
       };
-      
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsTyping(false);
@@ -136,7 +166,7 @@ export const ChatScreen: React.FC = () => {
       }),
     ]).start(() => {
       setShowRecommendations(false);
-      setInputText(question);
+      //setInputText(question);
       
       const userMessage: ChatMessage = {
         id: Date.now().toString(),
@@ -145,7 +175,7 @@ export const ChatScreen: React.FC = () => {
         timestamp: new Date(),
       };
 
-      setMessages(prev => [...prev, userMessage]);
+      setMessages(prev => [...prev, userMessage]); // Add user message to the messages array
       setIsTyping(true);
 
       // Use the same RAG response handling as handleSend
@@ -321,6 +351,51 @@ export const ChatScreen: React.FC = () => {
           />
         </TouchableOpacity>
       </KeyboardAvoidingView>
+
+      {/* Transaction Confirmation Modal */}
+      <Modal
+        visible={showTransactionModal}
+        transparent
+        animationType="fade"
+        onRequestClose={handleTransactionCancel}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Confirm Transaction</Text>
+              <TouchableOpacity onPress={handleTransactionCancel} style={styles.modalCloseButton}>
+                <Ionicons name="close" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.transactionDetails}>
+              <Text style={styles.transactionLabel}>Amount:</Text>
+              <Text style={styles.transactionValue}>
+                {pendingTransaction?.amount?.toLocaleString('vi-VN')} VND
+              </Text>
+              
+              <Text style={styles.transactionLabel}>Description:</Text>
+              <Text style={styles.transactionValue}>{pendingTransaction?.description}</Text>
+            </View>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.cancelButton]} 
+                onPress={handleTransactionCancel}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.confirmButton]} 
+                onPress={handleTransactionConfirm}
+              >
+                <Text style={styles.confirmButtonText}>Proceed to Payment</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -513,5 +588,76 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     flex: 1,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    width: '90%',
+    maxWidth: 400,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E8E8E8',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#333',
+  },
+  modalCloseButton: {
+    padding: 4,
+  },
+  transactionDetails: {
+    marginBottom: 24,
+  },
+  transactionLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
+  },
+  transactionValue: {
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '500',
+    marginBottom: 16,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  modalButton: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#F5F5F5',
+  },
+  confirmButton: {
+    backgroundColor: '#007AFF',
+  },
+  cancelButtonText: {
+    color: '#666',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  confirmButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
   },
 }); 

@@ -53,9 +53,11 @@ export default function RootLayout() {
           // App screens
           <>
             <Stack.Screen name="dashboard" />
-            <Stack.Screen name="savings" />
-            <Stack.Screen name="investments" />
-            <Stack.Screen name="deposits" />
+            <Stack.Screen name="credit_loan" />
+            <Stack.Screen name="stock_investment" />
+            <Stack.Screen name="deposit" />
+            <Stack.Screen name="chat" />
+            <Stack.Screen name="transaction" />
           </>
         )}
       </Stack>
@@ -72,13 +74,13 @@ export function AppLayout() {
           let iconName;
 
           switch (route.name) {
-            case 'savings':
+            case 'credit_loan':
               iconName = focused ? 'wallet' : 'wallet-outline';
               break;
-            case 'investments':
+            case 'stock_investment':
               iconName = focused ? 'trending-up' : 'trending-up-outline';
               break;
-            case 'deposits':
+            case 'deposit':
               iconName = focused ? 'time' : 'time-outline';
               break;
             default:
@@ -93,21 +95,21 @@ export function AppLayout() {
       })}
     >
       <Tabs.Screen
-        name="savings"
+        name="credit_loan"
         options={{
-          title: 'Savings',
+          title: 'credit_loan',
         }}
       />
       <Tabs.Screen
-        name="investments"
+        name="stock_investment"
         options={{
-          title: 'Investments',
+          title: 'stock_investment',
         }}
       />
       <Tabs.Screen
-        name="deposits"
+        name="deposit"
         options={{
-          title: 'Deposits',
+          title: 'deposit',
         }}
       />
     </Tabs>

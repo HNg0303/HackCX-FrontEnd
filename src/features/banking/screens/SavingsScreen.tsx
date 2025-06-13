@@ -7,8 +7,8 @@ export const SavingsScreen: React.FC = () => {
   // TODO: Implement account fetching logic
   const mockAccount: Account = {
     id: '1',
-    accountNumber: 'SAV123456789',
-    type: 'SAVINGS',
+    accountNumber: 'CRED123456789',
+    type: 'CREDIT_LOAN',
     balance: 5000.00,
     currency: 'USD',
     createdAt: new Date(),
@@ -19,7 +19,7 @@ export const SavingsScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <View style={styles.header}>
-          <Text style={styles.title}>Savings Account</Text>
+          <Text style={styles.title}>Credit Loan Account</Text>
           <Text style={styles.accountNumber}>Account: {mockAccount.accountNumber}</Text>
         </View>
         
