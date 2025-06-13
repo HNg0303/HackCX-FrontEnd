@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URL for the API
-const API_BASE_URL = 'https://aa1a-171-239-203-50.ngrok-free.app'; // Change this to your actual backend URL
+const API_BASE_URL = 'https://2621-14-248-90-121.ngrok-free.app'; // Change this to your actual backend URL
 
 // Types
 export interface UserSchema {
@@ -30,11 +30,19 @@ export interface UserIDRequest {
    user_id: string;
 }
 
+export interface PaymentMetadata {
+   amount: number;
+   account_id: string;
+   account_name: string;
+ }
+
 export interface RagResponse {
    success: boolean;
    response: string;
-   jump: boolean;
-}
+   jump_to_other_pages: boolean;
+   jumping_page: string;
+   payment_metadata: PaymentMetadata;
+ }
 
 // API Service class
 class ApiService {

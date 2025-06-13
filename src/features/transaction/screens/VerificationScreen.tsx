@@ -2,12 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    ActivityIndicator,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -18,6 +18,8 @@ export const VerificationScreen: React.FC = () => {
 
   const amount = params.amount ? Number(params.amount) : 1000000;
   const description = params.description as string || 'Payment for banking service';
+  const account_id = params.account_id as string || '1234567890';
+  const account_name = params.account_name as string || 'Tran Thi Huyen Trang';
   const transactionId = Math.random().toString(36).substring(2, 15).toUpperCase();
   const currentDate = new Date().toLocaleDateString('vi-VN', {
     year: 'numeric',

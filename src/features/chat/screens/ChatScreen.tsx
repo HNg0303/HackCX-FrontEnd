@@ -39,7 +39,7 @@ export const ChatScreen: React.FC = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
   const [showTransactionModal, setShowTransactionModal] = useState(false);
-  const [pendingTransaction, setPendingTransaction] = useState<{amount?: number; description?: string} | null>(null);
+  const [pendingTransaction, setPendingTransaction] = useState<{amount?: number; description?: string; account_id?: string; account_name?: string} | null>(null);
 
   // TODO: Replace with actual user ID from authentication
   const MOCK_USER_ID = 'user_001';
@@ -112,31 +112,39 @@ export const ChatScreen: React.FC = () => {
     setIsTyping(true);
 
     try {
+      const api_response: RagResponse = await apiService.getRagResponse({
+        user_input: inputText,
+        user_id: MOCK_USER_ID,
+      });
 
-        
-      // Test response template
-      const response: RagResponse = {
-        jump: true,
-        success: true,
-        response: 'I can help you with that payment. Would you like to proceed with the transaction?',
-      };
-      
-      // Add bot response to messages
-      const botResponse: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        text: response.response,
-        sender: 'bot',
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, botResponse]);
+      if (api_response.success) {
+        // Add bot response to messages
+        const botResponse: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          text: api_response.response,
+          sender: 'bot',
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, botResponse]);
 
-      // Show transaction modal if jump is true
-      if (response.jump) {
-        setPendingTransaction({
-          amount: 1000000,
-          description: 'Payment for banking service'
-        });
-        setShowTransactionModal(true);
+        if (api_response.jump_to_other_pages) {
+          setPendingTransaction({
+            amount: api_response.payment_metadata?.amount,
+            account_id: api_response.payment_metadata?.account_id,
+            account_name: api_response.payment_metadata?.account_name,
+            description: 'Payment for banking service',
+          });
+          setShowTransactionModal(true);
+        }
+      } else {
+        // Not success
+        const errorMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          text: 'Sorry, I could not process your request. Please try again.',
+          sender: 'bot',
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, errorMessage]);
       }
     } catch (error) {
       console.error('Error getting bot response:', error);

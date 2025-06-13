@@ -1,28 +1,38 @@
 import { apiService } from '@/api/api';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChatWidget } from '../../chat/components/ChatWidget';
 
-// TODO: Replace with actual user data from authentication
-const mockUser = {
-  name: 'Huyen Trang',
-  totalBalance: 2500000.00,
-  savingsBalance: 1500000.00,
-  investmentBalance: 800000.00,
-  depositBalance: 200000.00,
+// Remove mock user data since we'll get it from login
+type UserData = {
+  id: string;
+  name: string;
+  credit_score: number;
+  current_acc_balance: number;
+  current_acc_debit: number;
 };
-const MOCK_USER_ID = 'user_001';
 
 type ProductType = "deposit" | "credit_loan" | "stock_investment";
 
 const product_list: ProductType[] = ["deposit", "credit_loan", "stock_investment"];
 
 export const DashboardScreen: React.FC = () => {
+  const params = useLocalSearchParams();
+  const userData = params.userData ? JSON.parse(params.userData as string) as UserData : null;
+
+  // Use actual user data or fallback to defaults
+  const user = userData || {
+    id: 'user_001',
+    name: 'Tran Thi Huyen Trang',
+    credit_score: 10.0,
+    current_acc_balance: 10000,
+    current_acc_debit: 10000
+  };
+
   const handleLogout = () => {
-    // TODO: Implement logout logic
     router.replace('/login');
   };
 
@@ -30,7 +40,7 @@ export const DashboardScreen: React.FC = () => {
     try {
       // Update frequency before navigation
       await apiService.updateFrequency({
-        user_id: MOCK_USER_ID,
+        user_id: user.id ,
         product: product
       });
       
@@ -57,26 +67,8 @@ export const DashboardScreen: React.FC = () => {
   };
 
   const handleNavigateToChat = async () => {
-    try {
-      // TODO: Replace with actual user ID from authentication
-      // Fetch recommendations before navigating
-      const response = await apiService.getRecommendation(MOCK_USER_ID);
-      
-      if (response.success) {
-        // Pass recommendations to chat screen through router params
-        router.push({
-          pathname: '/chat',
-          params: { recommendations: JSON.stringify(response.recommendations) }
-        });
-      } else {
-        // If recommendations fetch fails, still navigate but without recommendations
-        router.push('/chat');
-      }
-    } catch (error) {
-      console.error('Error fetching recommendations:', error);
-      // Navigate to chat even if recommendations fail
-      router.push('/chat');
-    }
+    // Navigate to the welcome screen instead of chat
+    router.push({ pathname: '/welcome', params: { userId: user.id } });
   };
 
   return (
@@ -85,7 +77,7 @@ export const DashboardScreen: React.FC = () => {
         <View style={styles.header}>
           <View>
             <Text style={styles.welcomeText}>Welcome back,</Text>
-            <Text style={styles.userName}>{mockUser.name}</Text>
+            <Text style={styles.userName}>{user.name}</Text>
           </View>
           <View style={styles.headerButtons}>
             <TouchableOpacity 
@@ -102,7 +94,8 @@ export const DashboardScreen: React.FC = () => {
 
         <View style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>Total Balance</Text>
-          <Text style={styles.balanceAmount}>${mockUser.totalBalance.toFixed(2)}</Text>
+          <Text style={styles.balanceAmount}>${user.current_acc_balance.toFixed(2)}</Text>
+          <Text style={styles.creditScore}>Credit Score: {user.credit_score}</Text>
         </View>
 
         <View style={styles.productsContainer}>
@@ -118,7 +111,7 @@ export const DashboardScreen: React.FC = () => {
             <View style={styles.productInfo}>
               <Text style={styles.productName}>Fixed Deposits</Text>
               <Text style={styles.productBalance}>
-                ${mockUser.depositBalance.toFixed(2)}
+                ${user.current_acc_debit.toFixed(2)}
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={24} color="#666" />
@@ -242,5 +235,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginTop: 4,
+  },
+  creditScore: {
+    fontSize: 14,
+    color: '#fff',
+    opacity: 0.9,
+    marginTop: 8,
   },
 }); 
