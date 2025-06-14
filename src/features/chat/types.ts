@@ -14,7 +14,7 @@ export interface ChatState {
 
 export interface PaymentMetadata {
   amount: number;
-  account_id: string;
+  target_acc_id: string;
   account_name: string;
 }
 

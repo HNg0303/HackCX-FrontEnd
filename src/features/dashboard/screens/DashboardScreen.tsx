@@ -66,7 +66,7 @@ export const DashboardScreen: React.FC = () => {
     }
   };
 
-  const handleNavigateToChat = async () => {
+  const handleNavigateToScreen = async () => {
     // Navigate to the welcome screen instead of chat
     router.push({ pathname: '/welcome', params: { userId: user.id } });
   };
@@ -81,7 +81,7 @@ export const DashboardScreen: React.FC = () => {
           </View>
           <View style={styles.headerButtons}>
             <TouchableOpacity 
-              onPress={handleNavigateToChat} 
+              onPress={handleNavigateToScreen} 
               style={styles.headerButton}
             >
               <Ionicons name="chatbubble-ellipses-outline" size={24} color="#666" />
