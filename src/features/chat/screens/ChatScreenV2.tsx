@@ -3,18 +3,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  Animated,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Animated,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChatMessage, RagResponse } from '../types';
@@ -112,7 +112,6 @@ export const ChatScreen: React.FC = () => {
 
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
-    setInputPlaceholder('Nhập câu hỏi tại đây');
     setIsTyping(true);
 
     try {
