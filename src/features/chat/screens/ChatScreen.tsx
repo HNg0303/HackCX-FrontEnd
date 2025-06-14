@@ -22,11 +22,38 @@ import { ChatMessage, RagResponse } from '../types';
 const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: '1',
-    text: 'Xin chào ! Tôi là Trợ lý ảo của ngân hàng, tôi có thể giúp gì cho bạn hôm nay?',
+    text: 'Xin chào! Tôi là Trợ lý ảo của ngân hàng, tôi có thể giúp gì cho bạn hôm nay?',
     sender: 'bot',
     timestamp: new Date(),
   },
 ];
+
+// Parse text with **bold** effect for bot messages
+function parseTextWithBold(text: string) {
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part, idx) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      const boldText = part.slice(2, -2);
+      return (
+        <Text key={idx} style={{ fontWeight: 'bold', color: '#000' }}>
+          {boldText}
+        </Text>
+      );
+    }
+    return <Text key={idx}>{part}</Text>;
+  });
+}
+
+// Parse text into array of {text, bold} for typewriter effect
+function parseTextParts(text: string) {
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return { text: part.slice(2, -2), bold: true };
+    }
+    return { text: part, bold: false };
+  });
+}
 
 export const ChatScreen: React.FC = () => {
   const params = useLocalSearchParams();
@@ -41,6 +68,8 @@ export const ChatScreen: React.FC = () => {
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [pendingTransaction, setPendingTransaction] = useState<{ amount?: number; description?: string; account_id?: string; account_name?: string } | null>(null);
+  const [typingMessage, setTypingMessage] = useState<{ text: string; bold: boolean }[] | string>('');
+  const [isBotTyping, setIsBotTyping] = useState(false);
 
   // TODO: Replace with actual user ID from authentication
   const MOCK_USER_ID = 'user_001';
@@ -122,30 +151,61 @@ export const ChatScreen: React.FC = () => {
       });
 
       if (api_response.success) {
-        // Add bot response to messages
-        const botResponse: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          text: api_response.response,
-          sender: 'bot',
-          timestamp: new Date(),
-        };
-        setMessages(prev => [...prev, botResponse]);
-
-        if (api_response.jump_to_other_pages) {
-          console.log('api_response.payment_metadata', api_response.payment_metadata);
-          setPendingTransaction({
-            amount: api_response.payment_metadata?.amount,
-            account_id: api_response.payment_metadata?.target_acc_id,
-            account_name: api_response.payment_metadata?.account_name,
-            description: 'Payment for banking service',
-          });
-          setShowTransactionModal(true);
+        // Add bot response to messages with typewriter and bold effect
+        setIsBotTyping(true);
+        const text = api_response.response;
+        const parts = parseTextParts(text);
+        let partIdx = 0;
+        let charIdx = 0;
+        let current = '';
+        let displayParts: { text: string; bold: boolean }[] = [];
+        setTypingMessage([] as { text: string; bold: boolean }[]);
+        function typeNextChar() {
+          if (partIdx >= parts.length) {
+            // Kết thúc, đưa message hoàn chỉnh vào messages
+            const botResponse: ChatMessage = {
+              id: (Date.now() + 1).toString(),
+              text,
+              sender: 'bot',
+              timestamp: new Date(),
+            };
+            setMessages(prev => [...prev, botResponse]);
+            setTypingMessage([] as { text: string; bold: boolean }[]);
+            setIsBotTyping(false);
+            if (api_response.jump_to_other_pages) {
+              setPendingTransaction({
+                amount: api_response.payment_metadata?.amount,
+                account_id: api_response.payment_metadata?.target_acc_id,
+                account_name: api_response.payment_metadata?.account_name,
+                description: 'Thanh toán cho dịch vụ ngân hàng',
+              });
+              setShowTransactionModal(true);
+            }
+            return;
+          }
+          const part = parts[partIdx];
+          if (charIdx < part.text.length) {
+            current += part.text[charIdx];
+            setTypingMessage([
+              ...displayParts,
+              { text: current, bold: part.bold },
+            ]);
+            charIdx++;
+            setTimeout(typeNextChar, 1);
+          } else {
+            displayParts.push({ text: current, bold: part.bold });
+            partIdx++;
+            charIdx = 0;
+            current = '';
+            setTimeout(typeNextChar, 1);
+          }
         }
+        typeNextChar();
       } else {
         // Not success
         const errorMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
-          text: 'Sorry, I could not process your request. Please try again.',
+          text: 'Xin lỗi, tôi không thể xử lý yêu cầu của bạn. Vui lòng thử lại.',
           sender: 'bot',
           timestamp: new Date(),
         };
@@ -155,7 +215,7 @@ export const ChatScreen: React.FC = () => {
       console.error('Error getting bot response:', error);
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        text: 'I apologize, but I encountered an error while processing your request. Please try again later.',
+        text: 'Xin lỗi, đã xảy ra lỗi khi xử lý yêu cầu của bạn. Vui lòng thử lại sau.',
         sender: 'bot',
         timestamp: new Date(),
       };
@@ -198,22 +258,55 @@ export const ChatScreen: React.FC = () => {
       })
         .then(response => {
           if (response.success) {
-            const botResponse: ChatMessage = {
-              id: (Date.now() + 1).toString(),
-              text: response.response,
-              sender: 'bot',
-              timestamp: new Date(),
-            };
-            setMessages(prev => [...prev, botResponse]);
+            setIsBotTyping(true);
+            const text = response.response;
+            const parts = parseTextParts(text);
+            let partIdx = 0;
+            let charIdx = 0;
+            let current = '';
+            let displayParts: { text: string; bold: boolean }[] = [];
+            setTypingMessage([] as { text: string; bold: boolean }[]);
+            function typeNextChar() {
+              if (partIdx >= parts.length) {
+                // Kết thúc, đưa message hoàn chỉnh vào messages
+                const botResponse: ChatMessage = {
+                  id: (Date.now() + 1).toString(),
+                  text,
+                  sender: 'bot',
+                  timestamp: new Date(),
+                };
+                setMessages(prev => [...prev, { ...botResponse, text }]);
+                setTypingMessage([] as { text: string; bold: boolean }[]);
+                setIsBotTyping(false);
+                return;
+              }
+              const part = parts[partIdx];
+              if (charIdx < part.text.length) {
+                current += part.text[charIdx];
+                setTypingMessage([
+                  ...displayParts,
+                  { text: current, bold: part.bold },
+                ]);
+                charIdx++;
+                setTimeout(typeNextChar, 2);
+              } else {
+                displayParts.push({ text: current, bold: part.bold });
+                partIdx++;
+                charIdx = 0;
+                current = '';
+                setTimeout(typeNextChar, 2);
+              }
+            }
+            typeNextChar();
           } else {
-            throw new Error('Failed to get response from server');
+            throw new Error('Không thể lấy phản hồi từ máy chủ');
           }
         })
         .catch(error => {
           console.error('Error getting bot response:', error);
           const errorMessage: ChatMessage = {
             id: (Date.now() + 1).toString(),
-            text: 'I apologize, but I encountered an error while processing your request. Please try again later.',
+            text: 'Xin lỗi, đã xảy ra lỗi khi xử lý yêu cầu của bạn. Vui lòng thử lại sau.',
             sender: 'bot',
             timestamp: new Date(),
           };
@@ -236,7 +329,7 @@ export const ChatScreen: React.FC = () => {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Banking Assistant</Text>
+        <Text style={styles.headerTitle}>Trợ lý ngân hàng</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -257,7 +350,7 @@ export const ChatScreen: React.FC = () => {
           >
             <View style={message.sender === 'user' ? [styles.avatar, styles.avatarRight] : [styles.avatar, styles.avatarLeft]}>
               {message.sender === 'bot' ? (
-                <Ionicons name="chatbubble-ellipses" size={24} color="#007AFF" />
+                <Ionicons name="chatbubble-ellipses" size={24} color="#e53935" />
               ) : (
                 <Ionicons name="person" size={24} color="#666" />
               )}
@@ -274,7 +367,9 @@ export const ChatScreen: React.FC = () => {
                   message.sender === 'user' ? styles.userText : styles.botText,
                 ]}
               >
-                {message.text}
+                {message.sender === 'bot'
+                  ? parseTextWithBold(message.text)
+                  : message.text}
               </Text>
               <Text style={styles.timestamp}>
                 {message.timestamp.toLocaleTimeString([], {
@@ -285,10 +380,31 @@ export const ChatScreen: React.FC = () => {
             </View>
           </View>
         ))}
+        {isBotTyping && (
+          <View style={[styles.messageWrapper, styles.botWrapper]}>
+            <View style={styles.avatarLeft}>
+              <Ionicons name="chatbubble-ellipses" size={24} color="#e53935" />
+            </View>
+            <View style={[styles.messageBubble, styles.botBubble]}>
+              <Text style={[styles.messageText, styles.botText]}>
+                {Array.isArray(typingMessage)
+                  ? typingMessage.map((part, idx) => (
+                    <Text
+                      key={idx}
+                      style={part.bold ? { fontWeight: 'bold', color: '#000' } : {}}
+                    >
+                      {part.text}
+                    </Text>
+                  ))
+                  : typingMessage}
+              </Text>
+            </View>
+          </View>
+        )}
         {isTyping && (
           <View style={styles.typingIndicator}>
-            <ActivityIndicator size="small" color="#007AFF" />
-            <Text style={styles.typingText}>Assistant is typing...</Text>
+            <ActivityIndicator size="small" color="#e53935" />
+            <Text style={styles.typingText}>Trợ lý đang trả lời...</Text>
           </View>
         )}
       </ScrollView>
@@ -305,7 +421,7 @@ export const ChatScreen: React.FC = () => {
         >
           <View style={styles.recommendationsContainer}>
             <View style={styles.recommendationsHeader}>
-              <Text style={styles.recommendationsTitle}>Recommended Actions</Text>
+              <Text style={styles.recommendationsTitle}>Gợi ý câu hỏi</Text>
               <TouchableOpacity
                 onPress={() => setShowRecommendations(false)}
                 style={styles.closeButton}
@@ -326,12 +442,12 @@ export const ChatScreen: React.FC = () => {
                   <Ionicons
                     name={index === 0 ? "wallet-outline" : index === 1 ? "trending-up-outline" : "game-controller-outline"}
                     size={20}
-                    color="#007AFF"
+                    color="#e53935"
                     style={styles.recommendationIcon}
                   />
                   <Text style={styles.recommendationText}>{question}</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={20} color="#007AFF" />
+                <Ionicons name="chevron-forward" size={20} color="#e53935" />
               </Pressable>
             ))}
           </View>
@@ -363,7 +479,7 @@ export const ChatScreen: React.FC = () => {
           <Ionicons
             name="send"
             size={24}
-            color={inputText.trim() ? '#007AFF' : '#999'}
+            color={inputText.trim() ? '#e53935' : '#999'}
           />
         </TouchableOpacity>
       </KeyboardAvoidingView>
@@ -378,22 +494,22 @@ export const ChatScreen: React.FC = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Confirm Transaction</Text>
+              <Text style={styles.modalTitle}>Xác nhận giao dịch</Text>
               <TouchableOpacity onPress={handleTransactionCancel} style={styles.modalCloseButton}>
                 <Ionicons name="close" size={24} color="#666" />
               </TouchableOpacity>
             </View>
 
             <View style={styles.transactionDetails}>
-              <Text style={styles.transactionLabel}>Amount:</Text>
+              <Text style={styles.transactionLabel}>Số tiền:</Text>
               <Text style={styles.transactionValue}>
                 {pendingTransaction?.amount?.toLocaleString('vi-VN')} VND
               </Text>
-              <Text style={styles.transactionLabel}>Recipient's Bank Account ID:</Text>
+              <Text style={styles.transactionLabel}>Số tài khoản nhận:</Text>
               <Text style={styles.transactionValue}>{pendingTransaction?.account_id}</Text>
-              <Text style={styles.transactionLabel}>Recipient's Bank Account Name:</Text>
+              <Text style={styles.transactionLabel}>Tên tài khoản nhận:</Text>
               <Text style={styles.transactionValue}>{pendingTransaction?.account_name}</Text>
-              <Text style={styles.transactionLabel}>Description:</Text>
+              <Text style={styles.transactionLabel}>Nội dung:</Text>
               <Text style={styles.transactionValue}>{pendingTransaction?.description}</Text>
             </View>
 
@@ -402,14 +518,14 @@ export const ChatScreen: React.FC = () => {
                 style={[styles.modalButton, styles.cancelButton]}
                 onPress={handleTransactionCancel}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>Hủy</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={[styles.modalButton, styles.confirmButton]}
                 onPress={handleTransactionConfirm}
               >
-                <Text style={styles.confirmButtonText}>Proceed to Payment</Text>
+                <Text style={styles.confirmButtonText}>Tiếp tục thanh toán</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -429,6 +545,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
+    backgroundColor: '#F5F5F5',
     borderBottomWidth: 1,
     borderBottomColor: '#E8E8E8',
   },
@@ -482,7 +599,7 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
   },
   userBubble: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#e53935',
     borderBottomRightRadius: 4,
   },
   botBubble: {
@@ -525,10 +642,11 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#E8E8E8',
     alignItems: 'flex-end',
+    backgroundColor: '#F5F5F5',
   },
   input: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#fff',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 6,
@@ -536,12 +654,13 @@ const styles = StyleSheet.create({
     maxHeight: 40,
     marginRight: 8,
     fontSize: 16,
+    color: '#222',
   },
   sendButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -611,7 +730,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   recommendationText: {
-    color: '#007AFF',
+    color: '#e53935',
     fontSize: 15,
     fontWeight: '500',
     flex: 1,
@@ -675,7 +794,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   confirmButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#e53935',
   },
   cancelButtonText: {
     color: '#666',

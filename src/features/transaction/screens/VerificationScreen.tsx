@@ -17,9 +17,9 @@ export const VerificationScreen: React.FC = () => {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const amount = params.amount ? Number(params.amount) : 1000000;
-  const description = params.description ?  params.description as string : 'Payment for banking service';
-  const account_id = params.account_id  ? params.account_id as string : '1234567890';
-  const account_name = params.account_name ? params.account_name as string : 'Tran Thi Huyen Trang';
+  const description = params.description ? params.description as string : 'Thanh toán cho dịch vụ ngân hàng';
+  const account_id = params.account_id ? params.account_id as string : '1234567890';
+  const account_name = params.account_name ? params.account_name as string : 'Nguyễn Văn A';
   const transactionId = Math.random().toString(36).substring(2, 15).toUpperCase();
   const currentDate = new Date().toLocaleDateString('vi-VN', {
     year: 'numeric',
@@ -49,8 +49,8 @@ export const VerificationScreen: React.FC = () => {
     if (isProcessing) {
       return (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.processingText}>Processing payment...</Text>
+          <ActivityIndicator size="large" color="#e53935" />
+          <Text style={styles.processingText}>Đang xử lý thanh toán...</Text>
         </View>
       );
     }
@@ -59,10 +59,10 @@ export const VerificationScreen: React.FC = () => {
       return (
         <View style={styles.centered}>
           <Ionicons name="checkmark-circle" size={80} color="#4BB543" style={styles.checkIcon} />
-          <Text style={styles.successText}>Payment Successful!</Text>
+          <Text style={styles.successText}>Thanh toán thành công!</Text>
           <View style={styles.successDetails}>
             <Text style={styles.successAmount}>{amount.toLocaleString('vi-VN')} VND</Text>
-            <Text style={styles.successId}>Transaction ID: {transactionId}</Text>
+            <Text style={styles.successId}>Mã giao dịch: {transactionId}</Text>
           </View>
         </View>
       );
@@ -71,54 +71,54 @@ export const VerificationScreen: React.FC = () => {
     return (
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <View style={styles.amountSection}>
-          <Text style={styles.amountLabel}>Amount</Text>
+          <Text style={styles.amountLabel}>Số tiền</Text>
           <Text style={styles.amountValue}>{amount.toLocaleString('vi-VN')} VND</Text>
         </View>
 
         <View style={styles.detailsSection}>
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Transaction ID</Text>
+            <Text style={styles.detailLabel}>Mã giao dịch</Text>
             <Text style={styles.detailValue}>{transactionId}</Text>
           </View>
-          
+
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Account Name</Text>
+            <Text style={styles.detailLabel}>Tên tài khoản nhận</Text>
             <Text style={styles.detailValue}>{account_name}</Text>
           </View>
 
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Account ID</Text>
+            <Text style={styles.detailLabel}>Số tài khoản nhận</Text>
             <Text style={styles.detailValue}>{account_id}</Text>
           </View>
 
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Date & Time</Text>
+            <Text style={styles.detailLabel}>Ngày & giờ</Text>
             <Text style={styles.detailValue}>{currentDate}</Text>
           </View>
 
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Status</Text>
+            <Text style={styles.detailLabel}>Trạng thái</Text>
             <View style={styles.statusContainer}>
               <View style={[styles.statusDot, { backgroundColor: '#FFA500' }]} />
-              <Text style={[styles.detailValue, styles.statusText]}>Pending</Text>
+              <Text style={[styles.detailValue, styles.statusText]}>Đang chờ</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.actions}>
-          <TouchableOpacity 
-            style={[styles.button, styles.cancelButton]} 
+          <TouchableOpacity
+            style={[styles.button, styles.cancelButton]}
             onPress={handleCancel}
             disabled={isProcessing || isSuccess}
           >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
+            <Text style={styles.cancelButtonText}>Hủy</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.button, styles.confirmButton]} 
+          <TouchableOpacity
+            style={[styles.button, styles.confirmButton]}
             onPress={handleComplete}
             disabled={isProcessing || isSuccess}
           >
-            <Text style={styles.confirmButtonText}>Complete Payment</Text>
+            <Text style={styles.confirmButtonText}>Tiếp tục</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -128,14 +128,14 @@ export const VerificationScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity 
-          onPress={handleCancel} 
-          style={styles.backButton} 
+        <TouchableOpacity
+          onPress={handleCancel}
+          style={styles.backButton}
           disabled={isProcessing || isSuccess}
         >
           <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Payment Verification</Text>
+        <Text style={styles.headerTitle}>Xác thực giao dịch</Text>
         <View style={styles.placeholder} />
       </View>
       {renderContent()}
@@ -144,9 +144,9 @@ export const VerificationScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#fff' 
+  container: {
+    flex: 1,
+    backgroundColor: '#fff'
   },
   header: {
     flexDirection: 'row',
@@ -156,16 +156,16 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E8E8E8',
   },
-  backButton: { 
-    padding: 8 
+  backButton: {
+    padding: 8
   },
-  headerTitle: { 
-    fontSize: 18, 
-    fontWeight: 'bold', 
-    color: '#333' 
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333'
   },
-  placeholder: { 
-    width: 40 
+  placeholder: {
+    width: 40
   },
   scrollView: {
     flex: 1,
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   amountValue: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: '#007AFF',
+    color: '#e53935',
   },
   detailsSection: {
     backgroundColor: '#fff',
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   confirmButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#e53935',
   },
   cancelButtonText: {
     color: '#666',
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   processingText: {
     marginTop: 20,
     fontSize: 18,
-    color: '#007AFF',
+    color: '#e53935',
     fontWeight: '500',
   },
   checkIcon: {

@@ -2,13 +2,13 @@ import { router } from 'expo-router';
 import React, { useEffect } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const illustration = require('../../assets/images/botwelcome.png'); // Replace with your actual image
+const illustration = require('../../assets/images/chatbot.gif');
 
 const WelcomeScreen = ({ navigation }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       router.replace('/ai-agents'); // Navigate to AI Agents screen
-    }, 3500);
+    }, 8000);
     return () => clearTimeout(timer);
   }, [navigation]);
 
@@ -21,13 +21,13 @@ const WelcomeScreen = ({ navigation }) => {
       <View style={styles.illustrationWrapper}>
         <Image source={illustration} style={styles.illustration} resizeMode="contain" />
       </View>
-      <Text style={styles.title}>Hello, I am your Assistant!</Text>
+      <Text style={styles.title}>Xin chào, tôi là Trợ Lý AI của bạn!</Text>
       <Text style={styles.subtitle}>
-        Welcome to our Ai assistant app!{"\n"}
-        We're excited to have you on board. Here are a few steps to help you get started
+        Chào mừng bạn đến với ứng dụng Trợ Lý AI thông minh!{"\n"}
+        Tôi sẽ đồng hành cùng bạn, hỗ trợ và tư vấn để bạn có trải nghiệm tốt nhất. Hãy bắt đầu hành trình khám phá những tính năng nổi bật cùng tôi nhé!
       </Text>
       <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-        <Text style={styles.skipButtonText}>Skip</Text>
+        <Text style={styles.skipButtonText}>Bỏ qua</Text>
       </TouchableOpacity>
     </View>
   );
@@ -36,7 +36,7 @@ const WelcomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E2D4FA',
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   skipButton: {
-    backgroundColor: '#111',
+    backgroundColor: '#e53935',
     borderRadius: 24,
     paddingVertical: 12,
     paddingHorizontal: 40,

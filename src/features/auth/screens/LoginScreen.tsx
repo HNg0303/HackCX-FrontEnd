@@ -1,14 +1,14 @@
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LoginCredentials } from '../types';
@@ -131,11 +131,11 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   forgotPasswordText: {
-    color: '#007AFF',
+    color: '#e53935',
     fontSize: 14,
   },
   loginButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#e53935',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   registerLink: {
-    color: '#007AFF',
+    color: '#e53935',
     fontSize: 14,
     fontWeight: '500',
   },

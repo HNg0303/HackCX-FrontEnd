@@ -1,2 +1,2 @@
-import { DashboardScreen } from '../src/features/dashboard/DashboardScreenv2';
+import { DashboardScreen } from '../src/features/dashboard/screens/DashboardScreenv2';
 export default DashboardScreen; 

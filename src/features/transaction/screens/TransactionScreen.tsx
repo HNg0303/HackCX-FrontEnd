@@ -2,16 +2,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -21,26 +21,26 @@ export const TransactionScreen: React.FC = () => {
   const [otp, setOtp] = useState('');
 
   // Get transaction details from params
-  const amount = params.amount ? Number(params.amount) : 1000000; // Default to 1M VND if not provided
-  const description = params.description as string || 'Payment for banking service';
+  const amount = params.amount ? Number(params.amount) : 1000000; // Mặc định 1 triệu VND nếu không có
+  const description = params.description as string || 'Thanh toán dịch vụ ngân hàng';
 
   const handleConfirmPayment = async () => {
     if (!otp || otp.length !== 6) {
-      Alert.alert('Invalid OTP', 'Please enter a valid 6-digit OTP');
+      Alert.alert('OTP không hợp lệ', 'Vui lòng nhập mã OTP gồm 6 chữ số');
       return;
     }
 
     setIsProcessing(true);
-    
-    // Simulate payment processing
+
+    // Giả lập xử lý thanh toán
     setTimeout(() => {
       setIsProcessing(false);
       Alert.alert(
-        'Payment Successful',
-        'Your transaction has been completed successfully.',
+        'Thanh toán thành công',
+        'Giao dịch của bạn đã được thực hiện thành công.',
         [
           {
-            text: 'OK',
+            text: 'Đồng ý',
             onPress: () => router.replace('/dashboard'),
           },
         ]
@@ -50,15 +50,15 @@ export const TransactionScreen: React.FC = () => {
 
   const handleCancel = () => {
     Alert.alert(
-      'Cancel Transaction',
-      'Are you sure you want to cancel this transaction?',
+      'Huỷ giao dịch',
+      'Bạn có chắc chắn muốn huỷ giao dịch này không?',
       [
         {
-          text: 'No',
+          text: 'Không',
           style: 'cancel',
         },
         {
-          text: 'Yes',
+          text: 'Có',
           onPress: () => router.back(),
         },
       ]
@@ -71,7 +71,7 @@ export const TransactionScreen: React.FC = () => {
         <TouchableOpacity onPress={handleCancel} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Payment</Text>
+        <Text style={styles.headerTitle}>Thanh toán</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -81,7 +81,7 @@ export const TransactionScreen: React.FC = () => {
       >
         <ScrollView style={styles.scrollView}>
           <View style={styles.amountContainer}>
-            <Text style={styles.amountLabel}>Amount</Text>
+            <Text style={styles.amountLabel}>Số tiền</Text>
             <Text style={styles.amountValue}>
               {amount.toLocaleString('vi-VN')} VND
             </Text>
@@ -89,17 +89,17 @@ export const TransactionScreen: React.FC = () => {
 
           <View style={styles.detailsContainer}>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Description</Text>
+              <Text style={styles.detailLabel}>Nội dung</Text>
               <Text style={styles.detailValue}>{description}</Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Transaction ID</Text>
+              <Text style={styles.detailLabel}>Mã giao dịch</Text>
               <Text style={styles.detailValue}>
                 {Math.random().toString(36).substring(2, 15).toUpperCase()}
               </Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Date</Text>
+              <Text style={styles.detailLabel}>Ngày</Text>
               <Text style={styles.detailValue}>
                 {new Date().toLocaleDateString('vi-VN')}
               </Text>
@@ -107,12 +107,12 @@ export const TransactionScreen: React.FC = () => {
           </View>
 
           <View style={styles.otpContainer}>
-            <Text style={styles.otpLabel}>Enter OTP to confirm payment</Text>
+            <Text style={styles.otpLabel}>Nhập mã OTP để xác nhận thanh toán</Text>
             <TextInput
               style={styles.otpInput}
               value={otp}
               onChangeText={setOtp}
-              placeholder="Enter 6-digit OTP"
+              placeholder="Nhập mã OTP gồm 6 chữ số"
               keyboardType="number-pad"
               maxLength={6}
               secureTextEntry
@@ -126,7 +126,7 @@ export const TransactionScreen: React.FC = () => {
             onPress={handleCancel}
             disabled={isProcessing}
           >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
+            <Text style={styles.cancelButtonText}>Huỷ</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -137,7 +137,7 @@ export const TransactionScreen: React.FC = () => {
             {isProcessing ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.confirmButtonText}>Confirm Payment</Text>
+              <Text style={styles.confirmButtonText}>Xác nhận thanh toán</Text>
             )}
           </TouchableOpacity>
         </View>

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URL for the API
-const API_BASE_URL = 'https://0298-14-231-29-3.ngrok-free.app'; // Change this to your actual backend URL
+const API_BASE_URL = 'https://618b-222-252-4-92.ngrok-free.app'; // Change this to your actual backend URL
 
 // Types
 export interface UserSchema {
@@ -34,7 +34,7 @@ export interface PaymentMetadata {
    amount: number;
    target_acc_id: string;
    account_name: string;
- }
+}
 
 export interface RagResponse {
    success: boolean;
@@ -42,7 +42,7 @@ export interface RagResponse {
    jump_to_other_pages: boolean;
    jumping_page: string;
    payment_metadata: PaymentMetadata;
- }
+}
 
 export interface DrawAgentInput {
    user_id: string
@@ -53,6 +53,8 @@ export interface DrawAgentResponse {
    image: string; // Base64 encoded image data
    message?: string;
 }
+
+
 
 // API Service class
 class ApiService {
