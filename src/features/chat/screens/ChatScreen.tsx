@@ -191,13 +191,13 @@ export const ChatScreen: React.FC = () => {
               { text: current, bold: part.bold },
             ]);
             charIdx++;
-            setTimeout(typeNextChar, 1);
+            setTimeout(typeNextChar, 0.5);
           } else {
             displayParts.push({ text: current, bold: part.bold });
             partIdx++;
             charIdx = 0;
             current = '';
-            setTimeout(typeNextChar, 1);
+            setTimeout(typeNextChar, 0.5);
           }
         }
         typeNextChar();
@@ -288,13 +288,13 @@ export const ChatScreen: React.FC = () => {
                   { text: current, bold: part.bold },
                 ]);
                 charIdx++;
-                setTimeout(typeNextChar, 2);
+                setTimeout(typeNextChar, 1);
               } else {
                 displayParts.push({ text: current, bold: part.bold });
                 partIdx++;
                 charIdx = 0;
                 current = '';
-                setTimeout(typeNextChar, 2);
+                setTimeout(typeNextChar, 1);
               }
             }
             typeNextChar();
