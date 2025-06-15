@@ -50,7 +50,8 @@ export interface DrawAgentInput {
 
 export interface DrawAgentResponse {
    success: boolean;
-   image: string; // Base64 encoded image data
+   image_1: string; // Base64 encoded image data
+   image_2: string; // Base64 encoded image data
    message?: string;
 }
 

@@ -95,7 +95,7 @@ const AIAgentsScreen = () => {
           <Ionicons name="arrow-back" size={28} color="#222" />
         </TouchableOpacity>
         <View style={styles.headerCenterWrapper}>
-          <Text style={styles.header}>Các Trợ Lý AI</Text>
+          <Text style={styles.header}>Các Trợ Lý AI-Agents</Text>
         </View>
       </View>
       <TouchableOpacity
@@ -113,9 +113,9 @@ const AIAgentsScreen = () => {
         {isLoading ? (
           <ActivityIndicator color="#e53935" />
         ) : (
-          <Text style={styles.cardTitle}>Trợ Lý Chat</Text>
+          <Text style={styles.cardTitle}>Trợ Lý Hỗ Trợ Tư Vấn</Text>
         )}
-        <Text style={styles.cardDesc}>Trò chuyện với trợ lý AI của chúng tôi.</Text>
+        <Text style={styles.cardDesc}>Trò chuyện với trợ lý ảo được xây dựng bởi Conversation Agent (mục đích đối thoại) và Recommendation Agent (mục đích khuyến nghị).</Text>
         <PopupDemo
           title="Demo Trợ Lý Chat"
           isVisible={hovered === 'chat' && expanded}
@@ -140,8 +140,8 @@ const AIAgentsScreen = () => {
           <ActivityIndicator color="#e53935" />
         ) : (
           <>
-            <Text style={styles.cardTitle}>Phân Tích Hành Vi</Text>
-            <Text style={styles.cardDesc}>Xem phân tích hành vi và thông tin chi tiết được cá nhân hóa của bạn.</Text>
+            <Text style={styles.cardTitle}>Phân Tích Hành Vi Người Dùng</Text>
+            <Text style={styles.cardDesc}>Xem phân tích dữ liệu hành vi của bạn bởi Behavior Analysis Agent (mục đích phân tích hành vi).</Text>
           </>
         )}
         <PopupDemo
@@ -220,13 +220,13 @@ const styles = StyleSheet.create({
     opacity: 1,
   },
   cardTitle: {
-    fontSize: 30,
+    fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 8,
     color: '#222',
   },
   cardDesc: {
-    fontSize: 19,
+    fontSize: 14,
     color: '#444',
   },
   cardHover: {

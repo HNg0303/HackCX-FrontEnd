@@ -90,7 +90,7 @@ export const DashboardScreen: React.FC = () => {
 
    const handleNavigateToScreen = async () => {
       // Navigate to the welcome screen instead of chat
-      router.push({ pathname: '/welcome', params: { userId: user.id } });
+      router.push({ pathname: '/welcome', params: { userId: user.id, amount: 100000000, debt: 0 } });
    };
 
 

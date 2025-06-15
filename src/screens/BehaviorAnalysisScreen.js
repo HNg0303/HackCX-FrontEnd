@@ -1,20 +1,26 @@
 import { apiService } from '@/api/api';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const MOCK_USER_ID = 'user_001';
 
 const BehaviorAnalysisScreen = () => {
-  const [imageData, setImageData] = useState(null);
+  const [imageData1, setImageData1] = useState(null);
+  const [imageData2, setImageData2] = useState(null);
   const [error, setError] = useState(null);
+  const params = useLocalSearchParams();
 
   useEffect(() => {
     apiService.drawAgent({ user_id: MOCK_USER_ID })
       .then(response => {
+        // console.log("Thái ngu vcl", response);
         if (response.success) {
-          setImageData(response.image);
+          setImageData1(response.image_1);
+          setImageData2(response.image_2);
+          // console.log(response.image_1);
+          // console.log(response.image_2);
         } else {
           setError(response.message || 'Failed to generate analysis');
         }
@@ -37,19 +43,19 @@ const BehaviorAnalysisScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.headerRow}>
         <TouchableOpacity style={styles.backButtonInline} onPress={() => router.push('/dashboard')}>
           <Ionicons name="arrow-back" size={28} color="#222" />
         </TouchableOpacity>
         <Text style={styles.header}>Phân Tích Hành Vi Của Bạn</Text>
       </View>
-      {imageData && (
+      {imageData1 && (
         <Text style={styles.chartTitleTop}>Mức độ quan tâm các sản phẩm ngân hàng (%)</Text>
       )}
-      {imageData ? (
+      {imageData1 ? (
         <Image
-          source={{ uri: imageData }}
+          source={{ uri: imageData1 }}
           style={styles.image}
           resizeMode="contain"
         />
@@ -59,13 +65,26 @@ const BehaviorAnalysisScreen = () => {
           <Text style={styles.loadingText}>Đang tải phân tích...</Text>
         </View>
       )}
-    </View>
+      {imageData2 && (
+        <>
+          <Text style={styles.chartTitleTop}>Phân bổ đầu tư của khách hàng (Tổng: 40.000.000)</Text>
+          <Image
+            source={{ uri: imageData2 }}
+            style={styles.image}
+            resizeMode="contain"
+          />
+        </>
+      )}
+      {params.userId && (
+        <Text style={styles.accountInfo}>Số tài khoản của bạn: {params.userId}</Text>
+      )}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: '#fff',
     paddingTop: 32,
     paddingHorizontal: 12,
@@ -143,6 +162,13 @@ const styles = StyleSheet.create({
     color: '#444',
     textAlign: 'center',
     fontWeight: 'bold',
+  },
+  accountInfo: {
+    fontSize: 16,
+    color: '#e53935',
+    fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'center',
   },
 });
 
