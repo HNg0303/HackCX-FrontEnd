@@ -15,6 +15,10 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    ```bash
    npx expo start
    ```
+3. Access the web here:
+   '''bash
+   https://main.dwt7jcpj4k82l.amplifyapp.com/
+   '''
 
 In the output, you'll find options to open the app in a
 
